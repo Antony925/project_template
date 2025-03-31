@@ -39,5 +39,43 @@ class TestReadFileBuiltin(unittest.TestCase):
         except FileNotFoundError:
             pass
 
+
+class TestReadFilePandas(unittest.TestCase):
+    def setUp(self):
+        """Test .csv data preparing"""
+        self.test_csv = "test_data.csv"
+        self.test_data = pd.DataFrame({
+            'Name': ['Anton', 'Masha'],
+            'Age': [19, 21]
+        })
+        self.test_data.to_csv(self.test_csv, index=False)
+
+    def test_read_valid_csv(self):
+        """Test of reading correct .csv file"""
+        df = read_file_pandas(self.test_csv)
+        pd.testing.assert_frame_equal(df, self.test_data)
+
+    def test_file_not_found(self):
+        """Test of reading unexisting file"""
+        with self.assertRaises(FileNotFoundError):
+            read_file_pandas("nonexistent.csv")
+
+    def test_empty_csv(self):
+        """Test of reading empty .csv file"""
+        empty_csv = "empty.csv"
+        pd.DataFrame().to_csv(empty_csv)
+
+        df = read_file_pandas(empty_csv)
+        self.assertTrue(df.empty)
+
+    def tearDown(self):
+        """Clearing after all tests"""
+        try:
+            os.remove(self.test_csv)
+            os.remove("empty.csv")
+        except FileNotFoundError:
+            pass
+
+
 if __name__ == '__main__':
     unittest.main()
